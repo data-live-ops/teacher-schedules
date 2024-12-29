@@ -346,9 +346,12 @@ const Calendar = () => {
                                             {days.map((day) => (
                                                 <td key={`${day}-${time}`}>
                                                     {filters.weekPeriod &&
-                                                        groupByWeekPeriod(filters.weekPeriod)[`${day}-${time}`]?.map((item) => (
-                                                            <div key={item.id} className="class-info">
-                                                                <p style={{ fontWeight: "700", color: "#36454F" }}>
+                                                        groupByWeekPeriod(filters.weekPeriod)[`${day}-${time}`]?.map((item, index, array) => (
+                                                            <div key={item.id} className="class-info" style={{ marginBottom: array.length > 1 ? "2.5rem" : "0px" }}>
+                                                                <p style={{
+                                                                    fontWeight: "700",
+                                                                    color: "#36454F"
+                                                                }}>
                                                                     {item.teacher_name}
                                                                     {!item.is_available && (
                                                                         <span className="tooltip">
@@ -365,10 +368,18 @@ const Calendar = () => {
                                                                         </span>
                                                                     )}
                                                                 </p>
-
-                                                                <p className={item.classNote === "Mandatory" ? "slot-name-based slot-mandatory" : "slot-name-based slot-non-mandatory"}>{item.classNote === "Mandatory" ? `${item.grade} ${item.slot_name}` : item.slot_name}</p>
+                                                                {item.mentor_name && (
+                                                                    <p style={{ color: "grey", fontSize: "0.9rem", fontWeight: 700 }}>
+                                                                        {`Mentor: ${item.mentor_name}`}
+                                                                    </p>
+                                                                )}
+                                                                <p className={item.classNote === "Mandatory" ? "slot-name-based slot-mandatory" : "slot-name-based slot-non-mandatory"}>
+                                                                    {item.classNote === "Mandatory" ? `${item.grade} ${item.slot_name}` : item.slot_name}
+                                                                </p>
                                                                 {new Date(item.first_class_date) > new Date() && (
-                                                                    <p style={{ color: "grey" }}>{`Class starts ${convertDateToLocaleString(item.first_class_date)}`}</p>
+                                                                    <p style={{ color: "grey", fontSize: "0.9rem" }}>
+                                                                        {`Class starts ${convertDateToLocaleString(item.first_class_date)}`}
+                                                                    </p>
                                                                 )}
                                                             </div>
                                                         ))}
@@ -377,6 +388,7 @@ const Calendar = () => {
                                         </tr>
                                     ))}
                                 </tbody>
+
                             </table>
                         </div>
                     )}
