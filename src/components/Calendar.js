@@ -17,6 +17,7 @@ const Calendar = () => {
         subject: 'All',
         grade: 'All',
         teacherName: 'All',
+        mentorName: 'All',
         weekPeriod: '',
         grade_piket: '',
         subject_piket: ''
@@ -114,33 +115,71 @@ const Calendar = () => {
         return new Date(e).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
     };
 
-    const uniqueLevel = ['All', ...new Set(teacherData.map((item) => item.level))];
-    const uniqueGrades = [(activeSchedule === "teacher" ? 'All' : ''), ...new Set(teacherData.map((item) => item.grade))].sort((a, b) => Number(a) - Number(b));
+    const uniqueLevel = ['All', ...new Set(teacherData
+        .filter(item =>
+            (filters.weekPeriod === convertDateToLocaleString(item.period_week)) &&
+            (filters.level === 'All' || item.level === filters.level) &&
+            (filters.subject === 'All' || item.subject === filters.subject) &&
+            (filters.grade === 'All' || item.grade.toString() === filters.grade.toString()) &&
+            (filters.teacherName === 'All' || item.teacher_name === filters.teacherName) &&
+            (filters.mentorName === 'All' || item.mentor_name === filters.mentorName) &&
+            (item["level"])
+        )
+        .map((item) => item.level))];
+    const uniqueGrades = [(activeSchedule === "teacher" ? 'All' : ''), ...new Set(teacherData
+        .filter(item =>
+            (filters.weekPeriod === convertDateToLocaleString(item.period_week)) &&
+            (filters.level === 'All' || item.level === filters.level) &&
+            (filters.subject === 'All' || item.subject === filters.subject) &&
+            (filters.grade === 'All' || item.grade.toString() === filters.grade.toString()) &&
+            (filters.teacherName === 'All' || item.teacher_name === filters.teacherName) &&
+            (filters.mentorName === 'All' || item.mentor_name === filters.mentorName) &&
+            (item["grade"])
+        )
+        .map((item) => item.grade))].sort((a, b) => Number(a) - Number(b));
     const uniqueGradesPiket = [...new Set(guruPiketData.map((item) => item.grade))].sort((a, b) => Number(a) - Number(b));
-    const uniqueSubjects = [(activeSchedule === "teacher" ? 'All' : ''), ...new Set(teacherData.map((item) => item.subject))];
+    const uniqueSubjects = [(activeSchedule === "teacher" ? 'All' : ''), ...new Set(teacherData
+        .filter(item =>
+            (filters.weekPeriod === convertDateToLocaleString(item.period_week)) &&
+            (filters.level === 'All' || item.level === filters.level) &&
+            (filters.subject === 'All' || item.subject === filters.subject) &&
+            (filters.grade === 'All' || item.grade.toString() === filters.grade.toString()) &&
+            (filters.teacherName === 'All' || item.teacher_name === filters.teacherName) &&
+            (filters.mentorName === 'All' || item.mentor_name === filters.mentorName) &&
+            (item["subject"])
+        )
+        .map((item) => item.subject))];
     const uniqueSubjectPiket = [...new Set(guruPiketData
         .filter(item =>
             (String(filters.grade_piket) === String(item.grade))
         )
         .map((item) => item.subject))];
-    const uniqueTeachers = ['All', ...new Set(
-        teacherData
-            .filter(item =>
-                (filters.weekPeriod === convertDateToLocaleString(item.period_week)) &&
-                (filters.level === 'All' || item.level === filters.level) &&
-                (filters.subject === 'All' || item.subject === filters.subject) &&
-                (filters.grade === 'All' || item.grade.toString() === filters.grade.toString())
-            )
-            .map(item => item.teacher_name)
-    )].sort((a, b) => {
-        if (a === "All" && a !== b) {
-            return a - b;
-        }
-        if (b === "All" && a !== b) {
-            return b - a;
-        }
-        return a.localeCompare(b)
-    });
+
+    const createUniqueNames = (teacherData, filters, propName) => {
+        const names = ['All', ...new Set(
+            teacherData
+                .filter(item =>
+                    (filters.weekPeriod === convertDateToLocaleString(item.period_week)) &&
+                    (filters.level === 'All' || item.level === filters.level) &&
+                    (filters.subject === 'All' || item.subject === filters.subject) &&
+                    (filters.grade === 'All' || item.grade.toString() === filters.grade.toString()) &&
+                    (filters.teacherName === 'All' || item.teacher_name === filters.teacherName) &&
+                    (filters.mentorName === 'All' || item.mentor_name === filters.mentorName) &&
+                    (item[propName])
+                )
+                .map(item => item[propName])
+        )].sort((a, b) => {
+            if (a === "All" && a !== b) {
+                return a - b;
+            }
+            if (b === "All" && a !== b) {
+                return b - a;
+            }
+            return a.localeCompare(b)
+        });
+
+        return names;
+    }
     const uniqueWeekPeriods = [...new Set(teacherData.map((item) => convertDateToLocaleString(item.period_week)))];
     const filteredForGuruPiket = guruPiketData.filter((item) => {
         return (
@@ -154,6 +193,7 @@ const Calendar = () => {
             (filters.subject === 'All' || item.subject === filters.subject) &&
             (filters.grade === 'All' || item.grade.toString() === filters.grade.toString()) &&
             (filters.teacherName === 'All' || item.teacher_name.includes(filters.teacherName)) &&
+            (filters.mentorName === 'All' || item.mentor_name.includes(filters.mentorName)) &&
             (filters.weekPeriod === 'All' || convertDateToLocaleString(item.period_week) === filters.weekPeriod)
         );
     });
@@ -274,10 +314,23 @@ const Calendar = () => {
                                     {loading ? <Skeleton height={35} width={200} /> : (
                                         <AdvancedDropdown
                                             name="teacherName"
-                                            options={uniqueTeachers}
+                                            options={createUniqueNames(teacherData, filters, "teacher_name")}
                                             value={filters.teacherName}
                                             onChange={handleFilterChange}
                                             placeholder="Select Teacher"
+                                        />
+                                    )}
+                                </label>
+
+                                <label>
+                                    Mentor:
+                                    {loading ? <Skeleton height={35} width={200} /> : (
+                                        <AdvancedDropdown
+                                            name="mentorName"
+                                            options={createUniqueNames(teacherData, filters, "mentor_name")}
+                                            value={filters.mentorName}
+                                            onChange={handleFilterChange}
+                                            placeholder="Select Mentor"
                                         />
                                     )}
                                 </label>
