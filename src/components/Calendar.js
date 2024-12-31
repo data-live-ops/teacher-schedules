@@ -514,7 +514,7 @@ const Calendar = () => {
                         </div>
                     )}
 
-                    {areDropdownsSelected && activeSchedule === 'guruPiket' && (
+                    {areDropdownsSelected && isAnyFilterActive() && activeSchedule === 'guruPiket' && (
                         <div className="calendar">
                             <table>
                                 <thead>
