@@ -85,6 +85,20 @@ const Calendar = () => {
                 setLoading(false);
             }
         };
+        const resetFiltersOnScheduleChange = () => {
+            setFilters((prevFilters) => ({
+                ...prevFilters,
+                level: 'All',
+                subject: 'All',
+                grade: 'All',
+                teacherName: 'All',
+                mentorName: 'All',
+                grade_piket: '',
+                subject_piket: '',
+            }));
+        };
+
+        resetFiltersOnScheduleChange();
         loadData();
     }, [activeSchedule]);
 
@@ -106,15 +120,12 @@ const Calendar = () => {
         return convertDateToLocaleString(selected_week) || '';
     }
 
-    const getMonday = (e) => {
-        let date = new Date(e);
-        let day = date.getDay();
-        let getDate = date.getDate();
-
-        return new Date(getDate - day + (day === 0 ? -6 : 1));
+    function getMonday(e) {
+        const d = new Date(e);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day == 0 ? -6 : 1);
+        return new Date(d.setDate(diff));
     };
-
-    console.log(getMonday(new Date(2024, 11, 30)))
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -132,6 +143,28 @@ const Calendar = () => {
         }
     };
 
+    const resetFilters = () => {
+        setFilters(prevFilter => (
+            {
+                level: 'All',
+                subject: 'All',
+                grade: 'All',
+                teacherName: 'All',
+                mentorName: 'All',
+                weekPeriod: prevFilter.weekPeriod,
+                grade_piket: '',
+                subject_piket: ''
+            }
+        ));
+
+        setDropdownSelected(false);
+        setIsWeekSelected(false);
+    }
+
+    const isAnyFilterActive = () => {
+        const { weekPeriod, ...otherFilters } = filters;
+        return Object.values(otherFilters).some(value => value !== 'All' && value !== '');
+    };
 
     const convertDateToLocaleString = (e) => {
         return new Date(e).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
@@ -271,6 +304,19 @@ const Calendar = () => {
                     <header>
                         <h2>{activeSchedule === 'teacher' ? 'Teacher Schedule' : 'Guru Piket Schedule'}</h2>
                         <div className='tables-navigation'>
+                            <button
+                                onClick={resetFilters}
+                                disabled={!isAnyFilterActive()}
+                                className={isAnyFilterActive() ? 'reset-button active' : 'inactive'}
+                            >
+                                <div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="currentColor" fit="" preserveAspectRatio="xMidYMid meet" focusable="false">
+                                        <path d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"></path>
+                                    </svg>
+                                    Reset
+                                </div>
+                            </button>
                             <button onClick={() => setActiveSchedule('teacher')} className={activeSchedule === 'teacher' ? 'active' : 'inactive'}>Teacher Schedule</button>
                             <button onClick={() => setActiveSchedule('guruPiket')} className={activeSchedule === 'guruPiket' ? 'active' : 'inactive'}>Guru Piket Schedule</button>
                         </div>
