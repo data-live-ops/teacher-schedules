@@ -70,10 +70,10 @@ const Calendar = () => {
             if (activeSchedule === "teacher" && teacherData.length === 0) {
                 const scheduleData = await fetchScheduleData(teacher_schedule_url);
                 setTeacherData(scheduleData);
-                const latestWeek = getLatestWeek(scheduleData);
+                const selectedWeek = getSelectedweek(scheduleData);
                 setFilters((prevFilters) => ({
                     ...prevFilters,
-                    weekPeriod: latestWeek
+                    weekPeriod: selectedWeek
                 }));
                 await fetchLastUpdated();
                 setLoading(false);
@@ -88,11 +88,33 @@ const Calendar = () => {
         loadData();
     }, [activeSchedule]);
 
-    const getLatestWeek = (data) => {
+    const getSelectedweek = (data) => {
         const period_of_week = [...new Set(data.map(row => row.period_week))];
+        const today = getMonday(new Date());
         period_of_week.sort();
-        return convertDateToLocaleString(period_of_week[period_of_week.length - 1]) || '';
+        let selected_week = period_of_week.find(week => {
+            return new Date(week).toLocaleDateString() === today.toLocaleDateString();
+        });
+
+        if (!selected_week) {
+            selected_week = period_of_week.reduce((prev, current) => {
+                let prevDiff = Math.abs(new Date(prev) - today);
+                let currDiff = Math.abs(new Date(current) - today);
+                return prevDiff < currDiff ? prev : current;
+            })
+        }
+        return convertDateToLocaleString(selected_week) || '';
     }
+
+    const getMonday = (e) => {
+        let date = new Date(e);
+        let day = date.getDay();
+        let getDate = date.getDate();
+
+        return new Date(getDate - day + (day === 0 ? -6 : 1));
+    };
+
+    console.log(getMonday(new Date(2024, 11, 30)))
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
