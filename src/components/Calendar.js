@@ -192,7 +192,10 @@ const Calendar = () => {
             (item["grade"])
         )
         .map((item) => item.grade))].sort((a, b) => Number(a) - Number(b));
-    const uniqueGradesPiket = [...new Set(guruPiketData.map((item) => item.grade))].sort((a, b) => Number(a) - Number(b));
+    const uniqueGradesPiket = [...new Set(guruPiketData.map((item) => item.grade))].sort((a, b) => {
+        if (typeof a === "number" && typeof b === "number") return Number(a) - Number(b);
+        if (typeof a !== "number" || typeof b !== "number") return String(a).localeCompare(String(b));
+    });
     const uniqueSubjects = [(activeSchedule === "teacher" ? 'All' : ''), ...new Set(teacherData
         .filter(item =>
             (filters.weekPeriod === convertDateToLocaleString(item.period_week)) &&
