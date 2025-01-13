@@ -477,7 +477,7 @@ const Calendar = () => {
                                                                     color: "#36454F"
                                                                 }}>
                                                                     {item.teacher_name}
-                                                                    {!item.is_available && (
+                                                                    {item.is_available === "FALSE" && (
                                                                         <span className="tooltip">
                                                                             <a data-tooltip-id="my-tooltip-data-html" data-tooltip-html={ReactDOMServer.renderToStaticMarkup(
                                                                                 item.teacher_replaces
